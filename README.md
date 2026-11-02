@@ -1,3 +1,4 @@
+
 # LEDGERLINE
 
 LEDGERLINE is a Spring Boot 3.5 inventory application with Spring MVC, Spring Security, Spring Data JPA, Hibernate, JDBC transactions, MySQL 8.4, Bean Validation and Thymeleaf. It is a modular monolith: controllers handle transport, services own business rules, repositories own persistence, and templates provide the server-rendered experience.
@@ -5,6 +6,22 @@ LEDGERLINE is a Spring Boot 3.5 inventory application with Spring MVC, Spring Se
 ## Run with Docker
 
 Requirements: Docker Desktop and Maven.
+
+### Configure local environment
+
+For the first run, create your local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` before starting the application. Replace the sample database, MySQL root, and administrator passwords with your own values.
+
+Docker Compose automatically reads the `.env` file.
+
+Never commit `.env` or expose real credentials in the repository. The `.env.example` file contains demonstration placeholders for local development only.
+
+### Start the application
 
 ```bash
 ./scripts/start.sh
@@ -16,24 +33,30 @@ The script compiles the executable Spring Boot JAR, builds the application image
 http://localhost:8080/
 ```
 
-Stop the stack:
+### Stop the application
 
 ```bash
 ./scripts/stop.sh
 ```
 
-Default demonstration login:
+### Default demonstration login
+
+Only when using the unmodified local `.env.example`:
 
 ```text
 Email:    admin@ledgerline.local
 Password: change-me-now
 ```
 
-Set `LEDGERLINE_ADMIN_EMAIL` and `LEDGERLINE_ADMIN_PASSWORD` in the environment before a presentation. The database is exposed to the host on port `3307`; the application uses the internal MySQL service name.
+Set `LEDGERLINE_ADMIN_EMAIL` and `LEDGERLINE_ADMIN_PASSWORD` in `.env` to use different administrator credentials.
+
+The database is exposed to the host on port `3307`; the application uses the internal MySQL service name.
 
 ## Local Maven run
 
-Install JDK 21+ (JDK 27 is the target runtime), Maven and MySQL 8.4. Set:
+Install JDK 21+, Maven and MySQL 8.4.
+
+Set the following environment variables:
 
 ```bash
 export LEDGERLINE_DB_URL='jdbc:mysql://localhost:3306/ledgerline?createDatabaseIfNotExist=true&serverTimezone=UTC'
@@ -41,6 +64,11 @@ export LEDGERLINE_DB_USER=ledgerline
 export LEDGERLINE_DB_PASSWORD=your-password
 export LEDGERLINE_ADMIN_EMAIL=admin@ledgerline.local
 export LEDGERLINE_ADMIN_PASSWORD=change-me-now
+```
+
+Build and run:
+
+```bash
 mvn clean test package
 java -jar target/ledgerline-2.0.0.jar
 ```
@@ -79,3 +107,4 @@ POST /api/purchases/{id}/receive
 ```
 
 Critical stock operations use `@Transactional`, row locks, immutable movement records, and negative-balance checks.
+
