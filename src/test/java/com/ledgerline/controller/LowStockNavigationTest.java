@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers={PageController.class,InventoryRestController.class})
@@ -31,5 +32,16 @@ class LowStockNavigationTest {
   mvc.perform(get("/api/inventory/low-stock").param("q","dock").param("warehouseId","2"))
     .andExpect(status().isOk()).andExpect(jsonPath("$[0].sku").value("LL-1")).andExpect(jsonPath("$[0].shortage").value(9));
   verify(inventory).lowStock("dock",2L);
+ }
+
+ @Test void purchaseReceivingPagePostsToTransactionalReceiveWorkflow() throws Exception {
+  mvc.perform(post("/purchases/7/receive")
+      .param("productId","11")
+      .param("warehouseId","3")
+      .param("locationId","5")
+      .param("quantity","4.5"))
+    .andExpect(status().is3xxRedirection())
+    .andExpect(redirectedUrl("/purchases"));
+  verify(inventory).receive(7L,11L,3L,5L,new BigDecimal("4.5"));
  }
 }
