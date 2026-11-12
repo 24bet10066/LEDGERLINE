@@ -1,23 +1,12 @@
-
-# Build stage
-FROM maven:3.9-eclipse-temurin-21 AS build
-
-WORKDIR /app
-
+FROM maven:3.9.11-eclipse-temurin-21 AS build
+WORKDIR /workspace
 COPY pom.xml .
+RUN mvn -B -q dependency:go-offline
 COPY src ./src
+RUN mvn -B -q clean package -DskipTests
 
-RUN mvn clean package -DskipTests
-
-# Run stage
 FROM eclipse-temurin:21-jre
-
 WORKDIR /app
-
-COPY --from=build /app/target/ledgerline-2.0.0.jar app.jar
-
-ENV PORT=80
-
-EXPOSE 80
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY --from=build /workspace/target/ledgerline-2.0.0.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["sh","-c","exec java -Dserver.port=${PORT:-8080} -jar app.jar"]

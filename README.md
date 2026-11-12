@@ -31,6 +31,26 @@ Password: change-me-now
 
 Set `LEDGERLINE_ADMIN_EMAIL` and `LEDGERLINE_ADMIN_PASSWORD` in the environment before a presentation. The database is exposed to the host on port `3307`; the application uses the internal MySQL service name.
 
+## Deploy the container to Vercel
+
+Vercel builds and runs [`Dockerfile.vercel`](./Dockerfile.vercel) as an HTTP container. Deploy with the Vercel CLI or connect the repository to a Vercel project:
+
+```bash
+npx vercel deploy
+```
+
+Configure these Vercel environment variables for Preview and Production:
+
+```text
+LEDGERLINE_DB_URL=jdbc:mysql://<mysql-host>:3306/ledgerline?createDatabaseIfNotExist=true&serverTimezone=UTC
+LEDGERLINE_DB_USER=<database-user>
+LEDGERLINE_DB_PASSWORD=<database-password>
+LEDGERLINE_ADMIN_EMAIL=<admin-email>
+LEDGERLINE_ADMIN_PASSWORD=<strong-password>
+```
+
+Use a managed MySQL instance for Vercel. The local `docker-compose.yml` MySQL service is not part of a Vercel container deployment, and database state must live outside the stateless application container. Vercel supplies `PORT`; the application uses it automatically.
+
 ## Local Maven run
 
 Install JDK 21+ (JDK 27 is the target runtime), Maven and MySQL 8.4. Set:
