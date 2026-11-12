@@ -1,5 +1,23 @@
-FROM eclipse-temurin:21-jre
+
+# Build stage
+FROM maven:3.9-eclipse-temurin-21 AS build
+
 WORKDIR /app
-COPY target/ledgerline-2.0.0.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
+
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+
+# Run stage
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+COPY --from=build /app/target/ledgerline-2.0.0.jar app.jar
+
+ENV PORT=80
+
+EXPOSE 80
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
